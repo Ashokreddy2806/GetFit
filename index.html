@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fitness Recommendation System</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f3f4f6;
+      color: #333;
+    }
+
+    header {
+      background: #4f46e5;
+      color: white;
+      padding: 1rem 2rem;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 2rem auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.7rem;
+      margin-bottom: 1.2rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.9rem;
+      background: #4f46e5;
+      color: white;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #4338ca;
+    }
+
+    .output {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: #e0f2fe;
+      border-radius: 6px;
+      display: none;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: #4f46e5;
+      color: white;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        margin: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Fitness Recommendation System</h1>
+  </header>
+
+  <div class="container">
+    <label for="height">Height (cm):</label>
+    <input type="number" id="height" placeholder="e.g., 170" required />
+
+    <label for="weight">Weight (kg):</label>
+    <input type="number" id="weight" placeholder="e.g., 65" required />
+
+    <label for="age">Age:</label>
+    <input type="number" id="age" placeholder="e.g., 25" required />
+
+    <label for="gender">Gender:</label>
+    <select id="gender">
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
+
+    <label for="activity">Activity Level:</label>
+    <select id="activity">
+      <option value="sedentary">Sedentary</option>
+      <option value="light">Lightly Active</option>
+      <option value="moderate">Moderately Active</option>
+      <option value="active">Very Active</option>
+      <option value="extra">Extra Active</option>
+    </select>
+
+    <button onclick="getRecommendation()">Recommend</button>
+
+    <div id="output" class="output"></div>
+  </div>
+
+  <footer>
+    © 2025 Fitness AI | Powered by Mounika & Venu
+  </footer>
+
+  <script>
+    function getRecommendation() {
+      const height = parseFloat(document.getElementById("height").value);
+      const weight = parseFloat(document.getElementById("weight").value);
+      const age = parseInt(document.getElementById("age").value);
+      const gender = document.getElementById("gender").value;
+      const activity = document.getElementById("activity").value;
+
+      if (!height || !weight || !age) {
+        alert("Please fill all the fields!");
+        return;
+      }
+
+      const bmi = (weight / ((height / 100) ** 2)).toFixed(2);
+      let bmr;
+
+      if (gender === "male") {
+        bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+      } else {
+        bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+      }
+
+      let activityFactor = {
+        sedentary: 1.2,
+        light: 1.375,
+        moderate: 1.55,
+        active: 1.725,
+        extra: 1.9
+      }[activity];
+
+      const maintenanceCalories = Math.round(bmr * activityFactor);
+
+      let recommendation = `Your BMI is <strong>${bmi}</strong>.<br>`;
+      if (bmi < 18.5) {
+        recommendation += "You are underweight. Consider a calorie surplus diet with strength training.";
+      } else if (bmi < 25) {
+        recommendation += "You have a normal weight. Maintain a balanced diet and regular exercise.";
+      } else {
+        recommendation += "You are overweight. A calorie deficit plan and cardio exercises may help.";
+      }
+
+      recommendation += `<br><br>To maintain your weight, you need about <strong>${maintenanceCalories} kcal/day</strong>.`;
+
+      document.getElementById("output").innerHTML = recommendation;
+      document.getElementById("output").style.display = "block";
+    }
+  </script>
+
+</body>
+</html>

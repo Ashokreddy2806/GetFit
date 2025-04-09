@@ -25,7 +25,7 @@
     }
 
     .container {
-      max-width: 600px;
+      max-width: 700px;
       margin: 2rem auto;
       background: white;
       padding: 2rem;
@@ -71,20 +71,22 @@
       display: none;
     }
 
+    .chart-container {
+      margin-top: 2rem;
+    }
+
+    canvas {
+      margin-top: 1rem;
+      width: 100% !important;
+      max-width: 100%;
+    }
+
     footer {
       text-align: center;
       padding: 1rem;
       background: #4f46e5;
       color: white;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-    }
-
-    @media (max-width: 600px) {
-      .container {
-        margin: 1rem;
-      }
+      margin-top: 2rem;
     }
   </style>
 </head>
@@ -122,6 +124,14 @@
     <button onclick="getRecommendation()">Recommend</button>
 
     <div id="output" class="output"></div>
+
+    <div class="chart-container">
+      <h3>BMI Classification Comparison</h3>
+      <canvas id="bmiChart" height="200"></canvas>
+
+      <h3>Calorie Needs by Activity</h3>
+      <canvas id="calorieChart" height="200"></canvas>
+    </div>
   </div>
 
   <footer>
@@ -150,15 +160,15 @@
         bmr = 10 * weight + 6.25 * height - 5 * age - 161;
       }
 
-      let activityFactor = {
+      const activityLevels = {
         sedentary: 1.2,
         light: 1.375,
         moderate: 1.55,
         active: 1.725,
         extra: 1.9
-      }[activity];
+      };
 
-      const maintenanceCalories = Math.round(bmr * activityFactor);
+      const maintenanceCalories = Math.round(bmr * activityLevels[activity]);
 
       let recommendation = `Your BMI is <strong>${bmi}</strong>.<br>`;
       if (bmi < 18.5) {
@@ -173,8 +183,68 @@
 
       document.getElementById("output").innerHTML = recommendation;
       document.getElementById("output").style.display = "block";
+
+      drawBMIChart(bmi);
+      drawCalorieChart(bmr);
+    }
+
+    function drawBMIChart(userBMI) {
+      const ctx = document.getElementById('bmiChart').getContext('2d');
+      if (window.bmiBar) window.bmiBar.destroy();
+
+      window.bmiBar = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Underweight', 'Normal', 'Overweight', 'Your BMI'],
+          datasets: [{
+            label: 'BMI Ranges',
+            data: [18.4, 24.9, 29.9, parseFloat(userBMI)],
+            backgroundColor: ['#60a5fa', '#34d399', '#fbbf24', '#ef4444']
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: { display: true, text: 'BMI Value' }
+            }
+          }
+        }
+      });
+    }
+
+    function drawCalorieChart(bmr) {
+      const activityLevels = ['Sedentary', 'Light', 'Moderate', 'Active', 'Extra'];
+      const factors = [1.2, 1.375, 1.55, 1.725, 1.9];
+      const values = factors.map(f => Math.round(bmr * f));
+
+      const ctx = document.getElementById('calorieChart').getContext('2d');
+      if (window.calorieBar) window.calorieBar.destroy();
+
+      window.calorieBar = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: activityLevels,
+          datasets: [{
+            label: 'Calorie Needs (kcal)',
+            data: values,
+            backgroundColor: '#4f46e5'
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: { display: true, text: 'Calories' }
+            }
+          }
+        }
+      });
     }
   </script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </body>
 </html>
